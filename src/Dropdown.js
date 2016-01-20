@@ -80,6 +80,10 @@ const Dropdown = React.createClass({
           this._onButtonClick(event, callback);
         }.bind(this);
       }
+      else {
+        button.props.onClick = this._onButtonClick;
+      }
+
       toggle = React.cloneElement(button, toggleProps);
     } else {
       toggle = (
