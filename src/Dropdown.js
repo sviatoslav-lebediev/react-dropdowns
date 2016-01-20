@@ -9,6 +9,17 @@ const Dropdown = React.createClass({
   propTypes: {
 
     /**
+     * Specify what component should this <Dropdown> render as. This can be a
+     * valid React Component class or a string (eg. "div", "li", "span", etc.)
+     *
+     * defaults to "div"
+     */
+    Component: React.PropTypes.oneOfType([
+      React.PropTypes.func,
+      React.PropTypes.string
+    ]),
+
+    /**
      * This needs to either be a valid React Element or a string value.
      *
      * If this is a string, we will generate a simple <button type="button">
@@ -27,6 +38,12 @@ const Dropdown = React.createClass({
     className: React.PropTypes.string
   },
 
+  getDefaultProps() {
+    return {
+      Component: 'div'
+    };
+  },
+
   getInitialState() {
     return {
       open: false
@@ -40,6 +57,7 @@ const Dropdown = React.createClass({
   render() {
     let toggle;
     const {
+      Component,
       button,
       children,
       className,
@@ -76,7 +94,7 @@ const Dropdown = React.createClass({
     }
 
     return (
-      <div {...other} className={classes}>
+      <Component {...other} className={classes}>
         {toggle}
         <DropdownMenu
           ref="menu"
@@ -86,7 +104,7 @@ const Dropdown = React.createClass({
         >
           {children}
         </DropdownMenu>
-      </div>
+      </Component>
     );
   },
 

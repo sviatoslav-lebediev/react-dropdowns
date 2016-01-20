@@ -1,6 +1,6 @@
 {
   "name": "react-dropdown-menus",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A React component that allows you to create simple dropdown menus.",
   "main": "dist/react-dropdown-menus.js",
   "scripts": {
