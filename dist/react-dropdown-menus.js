@@ -116,6 +116,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  propTypes: {
 
 	    /**
+	     * Specify what component should this <Dropdown> render as. This can be a
+	     * valid React Component class or a string (eg. "div", "li", "span", etc.)
+	     *
+	     * defaults to "div"
+	     */
+	    Component: _react2.default.PropTypes.oneOfType([_react2.default.PropTypes.func, _react2.default.PropTypes.string]),
+
+	    /**
 	     * This needs to either be a valid React Element or a string value.
 	     *
 	     * If this is a string, we will generate a simple <button type="button">
@@ -131,6 +139,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    className: _react2.default.PropTypes.string
 	  },
 
+	  getDefaultProps: function getDefaultProps() {
+	    return {
+	      Component: 'div'
+	    };
+	  },
 	  getInitialState: function getInitialState() {
 	    return {
 	      open: false
@@ -144,11 +157,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    var toggle = undefined;
 	    var _props = this.props;
+	    var Component = _props.Component;
 	    var button = _props.button;
 	    var children = _props.children;
 	    var className = _props.className;
 
-	    var other = _objectWithoutProperties(_props, ['button', 'children', 'className']);
+	    var other = _objectWithoutProperties(_props, ['Component', 'button', 'children', 'className']);
 
 	    var classes = (0, _classnames2.default)(className, {
 	      "dropdown": true
@@ -182,7 +196,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    return _react2.default.createElement(
-	      'div',
+	      Component,
 	      _extends({}, other, { className: classes }),
 	      toggle,
 	      _react2.default.createElement(
