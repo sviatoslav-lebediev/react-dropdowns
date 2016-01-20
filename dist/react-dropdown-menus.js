@@ -183,7 +183,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          }.bind(_this);
 	        })();
 	      } else {
-	        button.props.onClick = this._onButtonClick;
+	        toggleProps.onClick = this._onButtonClick;
 	      }
 
 	      toggle = _react2.default.cloneElement(button, toggleProps);
