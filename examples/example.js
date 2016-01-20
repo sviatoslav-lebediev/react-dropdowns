@@ -19881,7 +19881,10 @@
 										this._onButtonClick(event, callback);
 									}.bind(_this);
 								})();
+							} else {
+								button.props.onClick = this._onButtonClick;
 							}
+
 							toggle = _react2.default.cloneElement(button, toggleProps);
 						} else {
 							toggle = _react2.default.createElement('button', _extends({}, toggleProps, {
