@@ -11,6 +11,9 @@ const DropdownItem = React.createClass({
      */
     active: React.PropTypes.bool,
 
+    /**
+     *
+     */
     className: React.PropTypes.string,
 
     /**
@@ -19,18 +22,40 @@ const DropdownItem = React.createClass({
     children: React.PropTypes.node,
 
     divider: (props, propName, componentName) => {
-      if (props.divider && props.children) {
-        return new Error('Children will not be rendered for dividers');
+      if (typeof props.divider !== 'boolean') {
+        return new Error('"divider" must be a boolean');
+      }
+      if (props.divider) {
+        if (props.children) {
+          return new Error('Children will not be rendered for dividers');
+        }
+        if (props.label) {
+          return new Error('"label" will not be rendered for dividers');
+        }
       }
     },
 
+    /**
+     *
+     */
     header: React.PropTypes.bool,
 
-    label: React.PropTypes.node.isRequired,
+    /**
+     *
+     */
+    label: React.PropTypes.node,
 
+    onClick: React.PropTypes.func,
+
+    /**
+     *
+     */
+    onItemSelected: React.PropTypes.func,
+
+    /**
+     *
+     */
     onRequestClose: React.PropTypes.func,
-
-    onSubMenuClose: React.PropTypes.func,
 
     // <a> specific props
     // ------------------
@@ -41,8 +66,14 @@ const DropdownItem = React.createClass({
       }
     },
 
+    /**
+     *
+     */
     target: React.PropTypes.string,
 
+    /**
+     *
+     */
     title: React.PropTypes.string
   },
 
@@ -55,7 +86,6 @@ const DropdownItem = React.createClass({
   },
 
   render() {
-    let menu;
     const {
       active,
       children,
@@ -64,8 +94,9 @@ const DropdownItem = React.createClass({
       header,
       href,
       label,
+      onClick,
+      onItemSelected,
       onRequestClose,
-      onSubMenuClose,
       target,
       title,
       ...other
@@ -73,17 +104,36 @@ const DropdownItem = React.createClass({
     const classes = classNames(className, {
       "active": active,
       "divider": divider,
-      "dropdown-header": header,
-      "dropdown-submenu": !!children
+      "Dropdown-header": header,
+      "Dropdown-submenu": !header && !!children
     });
     const role = divider ? 'separator' : other.role;
 
+    if (divider) {
+      return (
+        <li {...other} className={classes} role={role} />
+      );
+    }
+
+    if (header) {
+      return (
+        <li
+          {...other}
+          className={classes}
+          role={role}
+        >
+          {label}
+        </li>
+      );
+    }
+
+    let menu;
     if (children) {
       menu = (
         <DropdownMenu
           ref="menu"
-          onItemSelected={onRequestClose}
-          onRequestClose={onSubMenuClose}
+          onItemSelected={onItemSelected}
+          onRequestClose={onRequestClose}
           open={active}
         >
           {children}
@@ -116,7 +166,9 @@ const DropdownItem = React.createClass({
    * If this component has "menu" ref, focus it's menu.
    */
   focus() {
-    if (this.refs.menu) this.refs.menu.focus();
+    if (this.refs.menu) {
+      this.refs.menu.focus();
+    }
   },
 
   hasSubMenu() {
@@ -136,9 +188,11 @@ const DropdownItem = React.createClass({
   _onClick(e) {
     const { onClick, onRequestClose } = this.props;
 
-    onRequestClose();
+    if (onClick) {
+      onClick(e);
+    }
 
-    if (onClick) onClick(e);
+    onRequestClose();
   }
 
 });

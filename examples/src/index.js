@@ -1,24 +1,21 @@
+var Dropdown = require('../../dist/react-dropdown');
 var React = require('react');
 var ReactDOM = require('react-dom');
-var ReactDropdownMenus = require('../../dist/react-dropdown-menus');
-
-var Dropdown = ReactDropdownMenus.Dropdown;
-var DropdownItem = ReactDropdownMenus.DropdownItem;
 
 var App = (
   <div className="react-dropdown-menus">
-    <h3>react-dropdown-menus</h3>
+    <h3>react-dropdown</h3>
 
-    <Dropdown button="Toggle">
-      <DropdownItem label="Item 1" />
-      <DropdownItem label="Item 2">
-        <DropdownItem label="Item A" />
-        <DropdownItem label="Item B" href="/" />
-        <DropdownItem label="Item C">
-          <DropdownItem label="Item I" />
-          <DropdownItem label="Item II" />
-        </DropdownItem>
-      </DropdownItem>
+    <Dropdown toggle={<button type="button">Toggle</button>}>
+      <Dropdown.Item label="Item 1" />
+      <Dropdown.Item label="Item 2">
+        <Dropdown.Item label="Item A" />
+        <Dropdown.Item label="Item B" href="/" />
+        <Dropdown.Item label="Item C">
+          <Dropdown.Item label="Item I" />
+          <Dropdown.Item label="Item II" />
+        </Dropdown.Item>
+      </Dropdown.Item>
     </Dropdown>
 
   </div>

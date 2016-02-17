@@ -4,22 +4,36 @@ import classNames from 'classnames';
 const DropdownMenu = React.createClass({
 
   propTypes: {
+    align: React.PropTypes.oneOf(['left', 'right']),
+
     /**
      * The <DropdownItem>'s elements to populate <DropdownMenu> with.
      */
     children: React.PropTypes.node,
 
     /**
-     * Fires when this component is requesting to be closed.
-     */
-    onRequestClose: React.PropTypes.func,
-
-    /**
      * Fires when an item "onClick" prop has been triggered.
      */
-    onItemSelected: React.PropTypes.func,
+    onItemSelected: React.PropTypes.func.isRequired,
 
+    /**
+     * Fires when this component is requesting to be closed.
+     */
+    onRequestClose: React.PropTypes.func.isRequired,
+
+    /**
+     * Open the menu?
+     *
+     * defaults to `false`
+     */
     open: React.PropTypes.bool
+  },
+
+  getDefaultProps() {
+    return {
+      align: 'left',
+      open: false
+    };
   },
 
   getInitialState() {
@@ -28,24 +42,20 @@ const DropdownMenu = React.createClass({
     };
   },
 
-  componentDidUpdate() {
-    const childRef = this.refs[this.state.activeIndex];
-
-    if (childRef && childRef.hasSubMenu() && !childRef.isOpen()) {
-      childRef.focus();
-    }
-  },
-
   render() {
     const {
+      align,
       children,
       className,
-      ...other
+      onRequestClose,
+      ...others
     } = this.props;
     const classes = classNames(className, {
-      "dropdown-menu": true
+      "Dropdown-menu": true,
+      "Dropdown-menu-left": align === 'left',
+      "Dropdown-menu-right": align === 'right'
     });
-    const items = this.renderChildren(children);
+    const items = this.renderItems(children);
 
     if (items.length) {
       // Set a 'tabindex="-1"' so that this menu can be '.focus()'.
@@ -53,11 +63,12 @@ const DropdownMenu = React.createClass({
       // see: http://javascript.info/tutorial/focus-blur
       return (
         <ul
-          {...other}
-          className={classes}
+          {...others}
           ref="menu"
-          role="menu"
+          className={classes}
+          onClick={this._onClick}
           onKeyDown={this._onKeyDown}
+          role="menu"
           tabIndex="0"
         >
           {items}
@@ -68,7 +79,7 @@ const DropdownMenu = React.createClass({
     }
   },
 
-  renderChildren(children) {
+  renderItems(children) {
     this._children = [];
 
     // Return early if this menu is not open.
@@ -103,10 +114,10 @@ const DropdownMenu = React.createClass({
       props.key = index;
       props.ref = index;
       props.active = this.state.activeIndex == index;
+      props.onItemSelected = this._onItemSelected;
       props.onMouseEnter = this._onItemMouseEnter.bind(this, index, onMouseEnter);
       props.onMouseLeave = this._onItemMouseLeave.bind(this, index, onMouseLeave);
       props.onRequestClose = this.close;
-      props.onSubMenuClose = this.focus;
 
       this._children.push(
         React.cloneElement(child, props)
@@ -116,6 +127,11 @@ const DropdownMenu = React.createClass({
     return this._children;
   },
 
+  /**
+   * Close the menu
+   *
+   * @param callback
+   */
   close(callback) {
     if (this.props.open) {
       const onRequestClose = this.props.onRequestClose;
@@ -127,25 +143,44 @@ const DropdownMenu = React.createClass({
     }
   },
 
+  /**
+   * Focus menu if it is open.
+   */
   focus() {
-    if (this.refs.menu) this.refs.menu.focus();
+    if (this.refs.menu) {
+      this.refs.menu.focus();
+    }
   },
 
   /**
-   * Attempts to "focus" the item submenu. If the submenu does not exist,
-   * this will be a noop.
+   * Return the ref. to the active child. If none is active, returns `undefined`.
    *
-   * @param {number} index
-   * @private
+   * @return {*}
    */
-  focusItemSubMenu(index) {
-    const childRef = this.refs[index];
-
-    if (childRef) childRef.focus();
+  getActive() {
+    return this.refs[this.state.activeIndex];
   },
 
+  /**
+   *
+   * @return {*}
+   */
   isOpen() {
     return this.props.open;
+  },
+
+  /**
+   * Capture children "onClick' event and prevent propagation.
+   *
+   * @param e
+   * @private
+   */
+  _onClick(e) {
+    e.stopPropagation();
+
+    if (this.props.onClick) {
+      this.props.onClick(e);
+    }
   },
 
   /**
@@ -179,51 +214,27 @@ const DropdownMenu = React.createClass({
   },
 
   _onKeyDown(e) {
-    if (!this.props.open) {
-      return;
-    }
+    if (!this.props.open) return;
 
-    let childRef;
     switch (e.which) {
       // down arrow
       case 40:
         e.preventDefault();
         e.stopPropagation();
-
         this._setPreviousActiveIndex();
-        break;
-
-      // right arrow
-      case 39:
-        e.preventDefault();
-        e.stopPropagation();
-
-        childRef = this.refs[this.state.activeIndex];
-
-        if (childRef) childRef.focus();
         break;
 
       // up arrow
       case 38:
         e.preventDefault();
         e.stopPropagation();
-
         this._setNextActiveIndex();
-        break;
-
-      // left arrow
-      case 37:
-        e.preventDefault();
-        e.stopPropagation();
-
-        this.close();
         break;
 
       // Esc
       case 27:
         e.preventDefault();
         e.stopPropagation();
-
         this.close();
         break;
 
@@ -231,13 +242,10 @@ const DropdownMenu = React.createClass({
       case 13:
         e.preventDefault();
         e.stopPropagation();
+        const activeChild = this.refs[this.state.activeIndex];
 
-        childRef = this.refs[this.state.activeIndex];
-
-        if (childRef && childRef.hasSubMenu()) {
-          childRef.focus();
-        } else {
-          this._onItemSelected();
+        if (activeChild ) {
+          // this._onItemSelected(null);
         }
         break;
 
@@ -255,10 +263,11 @@ const DropdownMenu = React.createClass({
     }
   },
 
-  _onSubMenuClose() {
-    this.focus();
-  },
-
+  /**
+   * Set next active index, ignoring "disabled", "divider" and "header" items.
+   *
+   * @private
+   */
   _setNextActiveIndex() {
     const activeIndex = this.state.activeIndex;
     const children = this._children;
@@ -283,6 +292,11 @@ const DropdownMenu = React.createClass({
     if (index != activeIndex) this.setState({activeIndex: index});
   },
 
+  /**
+   * Set prev. active index, ignoring "disabled", "divider" and "header" items.
+   *
+   * @private
+   */
   _setPreviousActiveIndex() {
     const activeIndex = this.state.activeIndex;
     const children = this._children;

@@ -1,13 +1,25 @@
+/**
+ * @todo: implement BS3 ".dropdown-backdrop" functionality:
+ *
+ * "On mobile devices, opening a dropdown adds a .dropdown-backdrop as a tap
+ * area for closing dropdown menus when tapping outside the menu, a
+ * requirement for proper iOS support. This means that switching from an
+ * open dropdown menu to a different dropdown menu requires an extra tap on
+ * mobile."
+ *
+ */
 import ClickedAwayMixin from 'react-addons-clicked-away-mixin';
 import React from 'react';
 import classNames from 'classnames';
 
+import DropdownItem from './DropdownItem';
 import DropdownMenu from './DropdownMenu';
 
 const Dropdown = React.createClass({
 
-  propTypes: {
+  statics: { Item: DropdownItem, version: '0.2.0' },
 
+  propTypes: {
     /**
      * Specify what component should this <Dropdown> render as. This can be a
      * valid React Component class or a string (eg. "div", "li", "span", etc.)
@@ -20,27 +32,57 @@ const Dropdown = React.createClass({
     ]),
 
     /**
-     * This needs to either be a valid React Element or a string value.
+     * Align the menu to the "left" or "right" side.
      *
-     * If this is a string, we will generate a simple <button type="button">
-     * element. You may wish to style this via CSS class (eg. ".dropdown > button")
+     * defaults to "left"
      */
-    button: React.PropTypes.oneOfType([
-      React.PropTypes.element,
-      React.PropTypes.string
-    ]).isRequired,
+    align: React.PropTypes.oneOf(['left', 'right']),
 
     /**
-     * Elements should be <DropdownItem>'s.
+     * children should be <DropdownItem>'s
      */
     children: React.PropTypes.node,
 
-    className: React.PropTypes.string
+    /**
+     * "className" of the root component.
+     */
+    className: React.PropTypes.string,
+
+    /**
+     *
+     */
+    menuProps: React.PropTypes.object,
+
+    /**
+     * Function to call when menu is closed.
+     */
+    onClose: React.PropTypes.func,
+
+    /**
+     * Function to call when menu is opened.
+     */
+    onOpen: React.PropTypes.func,
+
+    /**
+     * The React Element that will act as the "toggle" for the dropdown
+     * component. An example would be a simple <button> component with the
+     * "trigger" prop set to "click".
+     */
+    toggle: React.PropTypes.element.isRequired,
+
+    /**
+     * Specify on how to trigger the dropdown menu.
+     *
+     * defaults to: "click"
+     */
+    trigger: React.PropTypes.oneOf(['click', 'focus'])
   },
 
   getDefaultProps() {
     return {
-      Component: 'div'
+      Component: 'div',
+      align: 'left',
+      trigger: 'click'
     };
   },
 
@@ -55,100 +97,154 @@ const Dropdown = React.createClass({
   ],
 
   render() {
-    let toggle;
     const {
       Component,
-      button,
+      align,
       children,
       className,
-      ...other
+      menuProps={},
+      onClose,
+      onOpen,
+      toggle,
+      trigger,
+      ...others
     } = this.props;
     const classes = classNames(className, {
-      "dropdown": true
+      "Dropdown": true,
+      "open": this.state.open
     });
-    const toggleProps = {
-      "aria-expanded": open ? 'true' : 'false',
-      "aria-haspopup": 'true',
-      "role": 'button'
-    };
-
-    if (React.isValidElement(button)) {
-      // preserve "onClick" prop if set
-      if (typeof button.props.onClick === 'function') {
-        const callback = button.props.onClick;
-        toggleProps.onClick = function(event) {
-          this._onButtonClick(event, callback);
-        }.bind(this);
-      }
-      else {
-        toggleProps.onClick = this._onButtonClick;
-      }
-
-      toggle = React.cloneElement(button, toggleProps);
-    } else {
-      toggle = (
-        <button
-          {...toggleProps}
-          onClick={this._onButtonClick}
-          type="button"
-        >
-          {button}
-        </button>
-      );
-    }
 
     return (
-      <Component {...other} className={classes}>
-        {toggle}
+      <Component {...others} className={classes}>
+        {this.renderToggle()}
         <DropdownMenu
           ref="menu"
+          {...menuProps}
+          align={align}
+          children={children}
           onItemSelected={this._onItemSelected}
-          onRequestClose={this.close}
           open={this.state.open}
-        >
-          {children}
-        </DropdownMenu>
+          onRequestClose={this.close}
+        />
       </Component>
     );
   },
 
-  close() {
-    if (this.state.open) this.setState({open: false});
-  },
+  /**
+   * Renders the "toggle" component. We clone the existing element as we need
+   * to hook into the "onClick" or "onBlur"/"onFocus" events.
+   *
+   * @return {ReactElement}
+   */
+  renderToggle() {
+    const { toggle, trigger } = this.props;
+    const toggleProps = {
+      "aria-expanded": this.state.open ? 'true' : 'false',
+      "aria-haspopup": 'true',
+      "className": classNames(toggle.props.className, 'Dropdown-toggle')
+    };
 
-  onClickedAway() {
-    this.close();
-  },
+    if (trigger == 'click') {
+      toggleProps.role = 'button';
+      toggleProps.onClick = this._onClick;
+    } else {
+      // bind onFocus/onBlur events
+      toggleProps.onBlur = this._onBlur;
+      toggleProps.onFocus = this._onFocus;
+    }
 
-  focus() {
-    if (this.refs.menu) this.refs.menu.focus();
+    return React.cloneElement(toggle, toggleProps);
   },
 
   /**
-   * On button click, toggle "open" state and focus the menu if next open
-   * state is `true`. Always invoke "callback" if it is a function.
+   * Close the menu if it is currently open, invoking "callback" after the menu
+   * has been closed.
    *
-   * @param {SyntheticEvent} event
    * @param {function} callback
-   * @private
    */
-  _onButtonClick(event, callback) {
+  close(callback) {
     if (this.state.open) {
-      this.setState({open: false},
-        typeof callback == 'function' ? () => callback(event) : null);
-    } else {
-      const focus = this.focus;
+      const { onClose } = this.props;
 
-      this.setState({open: true}, () => {
-        focus();
-        if (typeof callback == 'function') callback(event);
+      this.setState({open: false}, () => {
+        if (onClose) onClose();
+        if (callback) callback();
       });
     }
   },
 
+  /**
+   * Focus the <DropdownMenu> if it has been mounted.
+   */
+  focus() {
+    if (this.refs.menu) {
+      this.refs.menu.focus();
+    }
+  },
+
+  /**
+   * Triggered when a user clicked away from the the dropdown component.
+   */
+  onClickedAway() {
+    this.close(null);
+  },
+
+  /**
+   * Open the menu if it is not currently open, invoking "callback" after the
+   * menu has been openned.
+   *
+   * @param {function} callback
+   */
+  open(callback) {
+    if (!this.state.open) {
+      const self = this;
+
+      this.setState({open: true}, () => {
+        if (callback) callback();
+        if (self.props.onOpen) self.props.onOpen();
+        self.focus();
+      });
+    }
+  },
+
+  _onBlur(e) {
+    if (this.props.toggle.props.onBlur) {
+      this.props.toggle.props.onBlur(e);
+    }
+    this.close();
+  },
+
+  /**
+   * Toggles between showing/hiding the <DropdownMenu> component.
+   *
+   * @param {SyntheticEvent} e
+   * @private
+   */
+  _onClick(e) {
+    if (this.props.toggle.props.onClick) {
+      this.props.toggle.props.onClick(e);
+    }
+    this.state.open ? this.close() : this.open();
+  },
+
+  _onFocus(e) {
+    if (this.props.toggle.props.onFocus) {
+      this.props.toggle.props.onFocus(e);
+    }
+    this.open();
+  },
+
+  /**
+   * Triggered when a <DropdownItem> component was selected. If the menu is
+   * shown, it will be closed and the "callback" function will be invoked after
+   * the menu is closed. Otherwise the callback is invoked immediately.
+   *
+   * @param {function} callback
+   * @private
+   */
   _onItemSelected(callback) {
     if (this.state.open) {
-      this.setState({open: false}, () => callback && callback());
+      this.close(callback);
     } else if (callback) {
       callback();
     }
