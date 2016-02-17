@@ -1,9 +1,9 @@
-var Dropdown = require('../../dist/react-dropdown');
+var Dropdown = require('../../dist/react-dropdowns');
 var React = require('react');
 var ReactDOM = require('react-dom');
 
 var App = (
-  <div className="react-dropdown-menus">
+  <div className="react-dropdowns">
     <h3>react-dropdown</h3>
 
     <Dropdown toggle={<button type="button">Toggle</button>}>

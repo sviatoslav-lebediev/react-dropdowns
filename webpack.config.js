@@ -4,9 +4,9 @@ var webpack = require('webpack');
 var entry = {};
 
 if (process.env.NODE_ENV === 'production') {
-  entry["react-dropdown.min"] = './src/Dropdown.js';
+  entry["react-dropdowns.min"] = './src/Dropdown.js';
 } else {
-  entry["react-dropdown"] = './src/Dropdown.js';
+  entry["react-dropdowns"] = './src/Dropdown.js';
 }
 
 module.exports = {
@@ -48,7 +48,7 @@ module.exports = {
     filename: '[name].js',
 
     // name of the global var: "Mondavi"
-    library: 'ReactDropdown',
+    library: 'ReactDropdowns',
 
     // export itself to a global var
     libraryTarget: 'umd'

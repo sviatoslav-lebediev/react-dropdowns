@@ -1,17 +1,17 @@
 {
-  "name": "react-dropdown",
+  "name": "react-dropdowns",
   "version": "0.2.0",
   "description": "A React component that allows you to create dropdown menus.",
-  "main": "dist/react-dropdown.js",
+  "main": "dist/react-dropdowns.js",
   "scripts": {
     "build": "npm run lessc; webpack --config examples/src/webpack.config.js; webpack; NODE_ENV=production webpack -p",
-    "lessc": "./node_modules/less/bin/lessc less/dropdown.less dist/react-dropdown.css",
+    "lessc": "./node_modules/less/bin/lessc less/dropdown.less dist/react-dropdowns.css",
     "start": "webpack --progress --colors --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dennisduong/react-dropdown.git"
+    "url": "git+https://github.com/dennisduong/react-dropdowns.git"
   },
   "keywords": [
     "dropdown",
@@ -21,9 +21,9 @@
   "author": "Dennis Duong <dennis.duong@hotmail.com> (https://github.com/dennisduong)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/dennisduong/react-dropdown/issues"
+    "url": "https://github.com/dennisduong/react-dropdowns/issues"
   },
-  "homepage": "https://github.com/dennisduong/react-dropdown#readme",
+  "homepage": "https://github.com/dennisduong/react-dropdowns#readme",
   "devDependencies": {
     "babel": "^6.3.26",
     "babel-cli": "^6.4.0",

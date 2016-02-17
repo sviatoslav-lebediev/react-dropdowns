@@ -4,9 +4,9 @@
 	else if(typeof define === 'function' && define.amd)
 		define(["react-addons-clicked-away-mixin", "react", "classnames"], factory);
 	else if(typeof exports === 'object')
-		exports["ReactDropdown"] = factory(require("react-addons-clicked-away-mixin"), require("react"), require("classnames"));
+		exports["ReactDropdowns"] = factory(require("react-addons-clicked-away-mixin"), require("react"), require("classnames"));
 	else
-		root["ReactDropdown"] = factory(root["ClickedAwayMixin"], root["React"], root["classNames"]);
+		root["ReactDropdowns"] = factory(root["ClickedAwayMixin"], root["React"], root["classNames"]);
 })(this, function(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_3__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
