@@ -1,0 +1,41 @@
+@import "./../../styles/base";
+
+$asc-off-white: #F4F4F4;
+$asc-blue: #0CA2D0;
+$asc-dark-gray: #4A5456;
+
+.asc-sub-nav {
+    background: $asc-off-white;
+    font-family: $asc-default-font-family;
+    font-size: $asc-smaller-font-size;
+    padding: 0 15px;
+    line-height: 44px;
+
+    .asc-menu-item {
+        float: left;
+
+        &.open .asc-menu-title{
+            border-bottom: 4px solid $asc-blue;
+            color: $asc-dark-gray;
+        }
+
+        .asc-menu-title {
+            border-bottom: 4px solid transparent;
+            padding: 0 10px;
+            color: $asc-dark-gray;
+            cursor: pointer;
+
+            &:hover {
+                border-bottom: 4px solid $asc-blue;
+                color: $asc-dark-gray;
+            }
+        }
+    }
+
+    &:after {
+        content: " ";
+        display: block;
+        height: 0;
+        clear: both;
+    }
+}
