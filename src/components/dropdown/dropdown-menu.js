@@ -23,7 +23,7 @@ class DropdownMenu extends React.Component {
         const items = this.renderItems(children);
 
         if (items.length) {
-            const display = this.props.open ? 'initial' : 'none';
+            const display = this.props.open ? '' : 'none';
             // Set a 'tabindex="-1"' so that this menu can be '.focus()'.
             //
             // see: http://javascript.info/tutorial/focus-blur
@@ -32,7 +32,6 @@ class DropdownMenu extends React.Component {
                     style={{ display }}
                     ref='menu'
                     className={classes}
-                    onClick={this.onClick}
                     onKeyDown={this.onKeyDown}
                     role='menu'
                     tabIndex='0'
@@ -52,21 +51,7 @@ class DropdownMenu extends React.Component {
         // if (!this.props.open) return this._children;
 
         React.Children.forEach(children, (child, index) => {
-            // ignore 'null' or 'undefined' children
             if (!child) return;
-
-            // Validate child and show warning if this child is not the component
-            // we expect.
-            if (!(child.type && child.type.displayName === 'DropdownItem')) {
-                // Only supports console functions when developer tools are open,
-                // otherwise the console object is undefined and any calls will
-                // throw errors.
-                /* if (console) {
-                    console.warn(`DropdownMenu only accepts DropdownItem elements as
-          children. Found ${child.type.displayName || child.type} as child
-          member ${index} of children.`);
-                } */
-            }
 
             // we need to listen to specific events for this child element. if user
             // has provided props for these events, we pass in a "chain" function
@@ -77,6 +62,7 @@ class DropdownMenu extends React.Component {
             props.ref = index;
             props.active = this.state.activeIndex === index;
             props.onItemSelected = this.onItemSelected;
+            props.onClick = this.onClick;
             props.onMouseEnter = this.onItemMouseEnter.bind(this, index, onMouseEnter);
             props.onMouseLeave = this.onItemMouseLeave.bind(this, index, onMouseLeave);
             props.onRequestClose = this.close;
@@ -93,10 +79,12 @@ class DropdownMenu extends React.Component {
      * @param callback
      */
     close = (callback) => {
-        if (this.props.open) {
-            const onRequestClose = this.props.onRequestClose;
+        const { open, onRequestClose } = this.props;
 
-            this.setState({ activeIndex: null }, () => {
+        if (open) {
+            this.setState({
+                activeIndex: null
+            }, () => {
                 onRequestClose();
                 if (callback) callback();
             });
@@ -107,26 +95,10 @@ class DropdownMenu extends React.Component {
      * Focus menu if it is open.
      */
     focus () {
-        if (this.refs.menu) {
-            this.refs.menu.focus();
+        // focus on first menu item
+        if (this.refs[0]) {
+            this.refs[0].focus();
         }
-    }
-
-    /**
-     * Return the ref. to the active child. If none is active, returns `undefined`.
-     *
-     * @return {*}
-     */
-    getActive () {
-        return this.refs[this.state.activeIndex];
-    }
-
-    /**
-     *
-     * @return {*}
-     */
-    isOpen () {
-        return this.props.open;
     }
 
     /**
@@ -153,7 +125,9 @@ class DropdownMenu extends React.Component {
      * @private
      */
     onItemMouseEnter = (index, handler, e) => {
-        this.setState({ activeIndex: index }, () => handler && handler(e));
+        this.setState({
+            activeIndex: index
+        }, () => handler && handler(e));
     }
 
     /**
@@ -167,17 +141,21 @@ class DropdownMenu extends React.Component {
      */
     onItemMouseLeave = (index, handler, e) => {
         if (index === this.state.activeIndex) {
-            this.setState({ activeIndex: null }, () => handler && handler(e));
+            this.setState({
+                activeIndex: null
+            }, () => handler && handler(e));
         } else if (typeof handler === 'function') {
             handler(e);
         }
     }
 
     onKeyDown = (e) => {
-        if (!this.props.open) return;
+        if (!this.props.open) {
+            return;
+        }
 
         switch (e.which) {
-            // down arrow
+        // down arrow
         case 40:
             e.preventDefault();
             e.stopPropagation();
@@ -233,10 +211,8 @@ class DropdownMenu extends React.Component {
             child = children[i];
 
             let childIsDisabled = child.props.disabled;
-            let childIsADivider = child.props.divider;
-            let childIsAHeader = child.props.header;
 
-            if (!childIsDisabled && !childIsADivider && !childIsAHeader) {
+            if (!childIsDisabled) {
                 index = i;
                 break;
             }
@@ -262,10 +238,8 @@ class DropdownMenu extends React.Component {
             child = children[i];
 
             let childIsDisabled = child.props.disabled;
-            let childIsADivider = child.props.divider;
-            let childIsAHeader = child.props.header;
 
-            if (!childIsDisabled && !childIsADivider && !childIsAHeader) {
+            if (!childIsDisabled) {
                 index = i;
                 break;
             }
@@ -294,26 +268,11 @@ DropdownMenu.propTypes = {
     className: PropTypes.string,
     align: PropTypes.oneOf(['left', 'right']),
 
-    /**
-     * The <DropdownItem>'s elements to populate <DropdownMenu> with.
-     */
-    children: PropTypes.node,
-
-    /**
-     * Fires when an item "onClick" prop has been triggered.
-     */
+    // children: PropTypes.instanceOf(DropdownItem),
+    children: PropTypes.arrayOf(PropTypes.element),
     onItemSelected: PropTypes.func.isRequired,
-
-    /**
-     * Fires when this component is requesting to be closed.
-     */
     onRequestClose: PropTypes.func.isRequired,
-
-    /**
-     * Open the menu?
-     *
-     * defaults to `false`
-     */
+    onClick: PropTypes.func,
     open: PropTypes.bool
 };
 

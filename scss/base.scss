@@ -1,0 +1,21 @@
+@mixin asc-icon-font () {
+  font-family: 'HotSchedules-Font' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+$asc-default-font-family: 'Open Sans', Arial, sans-serif;
+$asc-smaller-font-size: 14px;
+
+$asc-white: #FFFFFF;
+$asc-off-white: #F4F4F4;
+$asc-light-gray: #CCCCCC;
+$asc-gray: #888C90;
+$asc-dark-gray: #4A5456;
+$asc-light-blue: #CEECF6;
+$asc-blue: #0CA2D0;

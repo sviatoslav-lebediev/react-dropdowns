@@ -2,7 +2,7 @@ import React  from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
-import DropdownMenu from './DropdownMenu';
+import DropdownMenu from './dropdown-menu';
 
 class DropdownItem extends React.Component {
     render () {
@@ -18,6 +18,7 @@ class DropdownItem extends React.Component {
             title,
             ...other
             } = this.props;
+
         const classes = classNames(className, {
             'active': active,
             'asc-dropdown-submenu': !!children

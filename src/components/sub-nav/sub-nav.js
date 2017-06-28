@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { withRouter, Link } from 'react-router';
 import { parseUrlToArray } from 'utils/string';
 import Dropdown from 'components/dropdown';
@@ -18,26 +19,19 @@ class SubNav extends React.Component {
     }
 
     render () {
-        const { className, items } = this.props;
+        const { className, items} = this.props;
         const { active } = this.state;
         const selectedKeys = parseUrlToArray(active);
 
-        if (!items) {
-            return null;
-        }
-
         return (
-            <div
-                className={`asc-sub-nav ${className}`}
-            >
+            <div className={`asc-sub-nav ${className}`}>
                 {
                     items.map((item) => {
-                        const { children, path, label } = item;
+                        const { children, path, label, walkMeId } = item;
 
                         return (
                             <Dropdown
-                                id={this.idGenerator(label)}
-                                data-walkme-id={this.walkMeIdGenerator(label + ' Menu Item')}
+                                data-walkme-id={walkMeId}
                                 className='asc-menu-item'
                                 key={path}
                                 onClick={this.handleClick}
@@ -55,21 +49,16 @@ class SubNav extends React.Component {
 
     renderMenuItems (items, parentPath = '', selectedKeys) {
         return items.map((item) => {
-            const { children, path, label } = item;
+            const { children, path, label, walkMeId } = item;
             const itemPath = `${parentPath}/${path}`;
             const labelComponent = children
                 ? label
-                : <Link
-                    id={this.idGenerator(label)}
-                    data-walkme-id={this.walkMeIdGenerator(label + ' Menu Item')}
-                    to={itemPath}
-                    activeClassName='route--active'>
-                    {label}
-                </Link>;
+                : <Link to={itemPath}>{label}</Link>;
             const active = selectedKeys.indexOf(itemPath) !== -1;
 
             return (
                 <Dropdown.Item
+                    data-walkme-id={walkMeId}
                     active={active}
                     label={labelComponent}
                     key={itemPath}
@@ -78,14 +67,6 @@ class SubNav extends React.Component {
                 </Dropdown.Item>
             );
         });
-    }
-
-    idGenerator = (label) => {
-        return 'asc_' + label.toLowerCase().split(' ').join('_');
-    }
-
-    walkMeIdGenerator = (label) => {
-        return label.toLowerCase().split(' ').join('_');
     }
 
     handleClick = (e) => {
@@ -102,9 +83,9 @@ SubNav.defaultProps = {
 };
 
 SubNav.propTypes = {
-    className: React.PropTypes.string,
-    location: React.PropTypes.object,
-    items: React.PropTypes.array
+    className: PropTypes.string,
+    location: PropTypes.object.isRequired,
+    items: PropTypes.array.isRequired
 };
 
 export default withRouter(SubNav);

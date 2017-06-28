@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
-import DropdownItem from './DropdownItem';
-import DropdownMenu from './DropdownMenu';
+import DropdownItem from './dropdown-item';
+import DropdownMenu from './dropdown-menu';
 
 import './dropdown.scss';
 
@@ -31,7 +31,7 @@ class Dropdown extends React.Component {
 
         const classes = classNames(className, {
             'asc-dropdown': true,
-            'open': this.state.open
+            'open': open
         });
 
         return (
@@ -44,7 +44,7 @@ class Dropdown extends React.Component {
                     children={children}
                     open={open}
                     onItemSelected={this.onItemSelected}
-                    onMouseOver={() => this.closing = false}
+                    onMouseOver={this.onMouseOver}
                     onRequestClose={this.close}
                 />
             </Component>
@@ -69,7 +69,6 @@ class Dropdown extends React.Component {
             toggleProps.role = 'button';
             toggleProps.onClick = this.onClick;
         } else {
-            // bind onFocus/onBlur events
             toggleProps.onMouseOut = this.onBlur;
             toggleProps.onMouseOver = this.onFocus;
         }
@@ -91,6 +90,10 @@ class Dropdown extends React.Component {
         } else if (callback) {
             callback();
         }
+    }
+
+    onMouseOver = (e) => {
+        this.closing = false;
     }
 
     onBlur = (e) => {
@@ -176,14 +179,14 @@ class Dropdown extends React.Component {
     componentDidMount () {
         // keep ref. to this component DOM element
         this.el = ReactDOM.findDOMNode(this);
-        window.addEventListener('click', this._onWindowClick);
+        window.addEventListener('click', this.onWindowClick);
     }
 
     componentWillUnmount () {
-        window.removeEventListener('click', this._onWindowClick);
+        window.removeEventListener('click', this.onWindowClick);
     }
 
-    _onWindowClick = (event) => {
+    onWindowClick = (event) => {
         if (this.el !== event.target && !this.el.contains(event.target)) {
             this.close(null);
         }

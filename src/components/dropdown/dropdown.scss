@@ -1,12 +1,4 @@
-@import "./../../styles/base";
-
-$asc-white: #FFFFFF;
-$asc-light-gray: #CCCCCC;
-$asc-gray: #888C90;
-$asc-dark-gray: #4A5456;
-$asc-off-white: #F4F4F4;
-$asc-light-blue: #CEECF6;
-$asc-smaller-font-size: 14px;
+@import "/scss/base";
 
 // base
 $dropdown-bg:                                     $asc-white;
